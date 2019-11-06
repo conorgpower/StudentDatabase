@@ -92,7 +92,7 @@ public class JDBC {
 		try {
 			getConnection();
 			System.out.println("Connected to database");
-			setStudentList(getResultSetObjectStudents());
+			setStudentList(getListStudents());
 		} catch (SQLException e) {
 			System.out.println("ERROR: Could not connect to the database");
 			e.printStackTrace();
@@ -126,8 +126,8 @@ public class JDBC {
 		}
 	}
 	
-	/** Method for getting all student table entries and adding them to the ArrayList studentList **/
-	public List<Student> getResultSetObjectStudents() {
+	/** Method for getting all student table entries and returning them in the ArrayList studentList **/
+	public List<Student> getListStudents() {
 		try {
 			Statement s = this.getConnection().createStatement();
 			s.executeQuery("SELECT * FROM students");

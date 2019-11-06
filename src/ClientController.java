@@ -31,6 +31,7 @@ public class ClientController extends Thread {
 	}
     
     public void run() {
+    	database.run();
     	/** Listen for client requests **/
     	while (true) {
     		try {
@@ -41,7 +42,6 @@ public class ClientController extends Thread {
         		/** Handle client requests **/ 
                 if (requestArray[0].equals("login")) {
                 	respond("Login", "Signing in");
-                	database.run();
                 	int uID = Integer.parseInt(requestArray[1]);
                 	String uName = database.searchUser(uID);
                 	if (uName == "") {
@@ -49,12 +49,13 @@ public class ClientController extends Thread {
                 		response = "Invalid UID";
                 	} else {
             			response = uName;
-            			respond("Response ", response + "signed in successfully!");
+            			respond("Response ", response + " signed in successfully!");
                 	}
-                } else if (requestArray[0] == "getUsers") {
-                	
-                } else if (requestArray[0] == "getStudents") {
-                	
+                } else if (requestArray[0].contentEquals("getAllStudents")) {
+                	List<Student> studentList = database.getListStudents();
+                	String students = encodeStudents(studentList);
+                	respond("Startup", "Fetching students");
+                	response = students;
                 } else if (requestArray[0] == "search") {
                 	
                 }

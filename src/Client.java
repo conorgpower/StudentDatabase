@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.*;
@@ -56,6 +57,10 @@ public class Client {
     private Socket socket;
     private DataOutputStream toServer;
     private DataInputStream fromServer;
+    
+    /** Database fields **/
+    private ArrayList<Student> studentList;
+    private int displayIndex = 0;
     
     public static void main(String[] args) {
     	Client client = new Client();
@@ -151,14 +156,14 @@ public class Client {
     	next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Next Button Pressed");
+            	getDisplayStudent("next");
             }
         });
     	
     	previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Previous Button Pressed");
+            	getDisplayStudent("previous");
             }
         });
     	
@@ -212,12 +217,12 @@ public class Client {
     				toServer.writeUTF("login," + uID);
                     toServer.flush();
                     response = fromServer.readUTF();
-                    System.out.println(response);
                     
                     if (!response.equals("Invalid UID")) {
+                    	this.getStudentData();
                     	loginScreen.setVisible(false);
                     	mainScreen.setVisible(true);
-                    	displayResponse("Welcome" + response);
+                    	displayResponse("Welcome " + response);
                     } else {
                     	loginError.setText(response);
                     	displayResponse("Invalid UID try again");
@@ -241,5 +246,72 @@ public class Client {
             loginError.setText("Error Connecting to Server");
             return false;
     	}
+    }
+    
+    private void getStudentData() {
+        try {
+            toServer.writeUTF("getAllStudents");
+            toServer.flush();
+            String response = fromServer.readUTF();
+            String[] studentData = response.split(",");
+
+            if(studentData[0].equals("students")){
+                displayResponse("Fetching Students from Database");
+                studentList = decodeUserData(studentData);
+                getDisplayStudent("init");
+            } else{
+                displayResponse("Error Getting all Student Data");
+            }
+        } catch (java.net.SocketException e){
+            displayResponse("Connection to Database Lost");
+        }catch (Exception e){
+            System.out.println(e);
+            displayResponse("Error Getting Student Data");
+        }
+    }
+    
+    private void getDisplayStudent(String option) {
+        if(option.equals("init")){
+            displayIndex = 0;
+        } else if(option.equals("next")){
+            if(displayIndex == studentList.size() - 1){
+            	String message = "Error!\nNo next student in list!\n";
+		        JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
+            } else {
+                displayIndex += 1;
+            }
+        } else if(option.equals("previous")){
+            if(displayIndex == 0){
+            	String message = "Error!\nNo previous student in list!\n";
+		        JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
+            } else {
+                displayIndex -= 1;
+            }
+        }
+        displayStudent(studentList.get(displayIndex));
+    }
+    
+    /** Display student on UI **/
+    private void displayStudent(Student student) {
+        sID.setText(student.getSID());
+        studID.setText(student.getStudID());
+        fName.setText(student.getFName());
+        sName.setText(student.getSName());
+    }
+    
+    
+    private ArrayList<Student> decodeUserData(String[] students){
+
+        ArrayList<Student> studentList = new ArrayList<Student>();
+
+        for(int i = 1; i < students.length; i += 4){
+            String sid = students[i];
+            String stud_id = students[i+1];
+            String fname = students[i+2];
+            String sname= students[i+3];
+            Student student = new Student(sid, stud_id, fname, sname);
+            studentList.add(student);
+        }
+        return studentList;
     }
 }
