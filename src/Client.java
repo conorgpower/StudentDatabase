@@ -4,6 +4,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.util.Date;
 
 import javax.swing.*;
 
@@ -24,13 +28,13 @@ public class Client {
     
     /** UI for student view **/
 	private static JLabel sIDLabel = new JLabel("SID:");
-	private static JLabel sID = new JLabel("Test");
+	private static JLabel sID = new JLabel("");
 	private static JLabel studIDLabel = new JLabel("Student ID:");
-	private static JLabel studID = new JLabel("Test");
+	private static JLabel studID = new JLabel("");
 	private static JLabel fNameLabel = new JLabel("First Name:");
-	private static JLabel fName = new JLabel("Test");
+	private static JLabel fName = new JLabel("");
 	private static JLabel sNameLabel = new JLabel("Surname:");
-	private static JLabel sName = new JLabel("Test");
+	private static JLabel sName = new JLabel("");
 	
 	/** UI for control screen **/
     private static JButton next = new JButton("Next");
@@ -42,7 +46,16 @@ public class Client {
     private static JButton logout = new JButton("Logout");
     
     /** UI for server response screen **/
-    private static JTextArea serverResponse = new JTextArea("TESTING");
+    private static JTextArea serverResponse = new JTextArea();
+    private static JButton clearDisplay = new JButton("Clear");
+	private static JScrollPane displayPane = new JScrollPane(serverResponse, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    
+    /** Database connection fields **/
+    private Socket socket;
+    private DataOutputStream toServer;
+    private DataInputStream fromServer;
     
     public static void main(String[] args) {
     	Client client = new Client();
@@ -121,15 +134,17 @@ public class Client {
         clearStudent.setPreferredSize(new Dimension(240, 20));
         logout.setPreferredSize(new Dimension(240, 20));
     	
-    	serverScreen.add(serverResponse);
+    	serverScreen.add(displayPane);
+    	serverScreen.add(clearDisplay);
     	
-    	serverResponse.setPreferredSize(new Dimension(500, 180));
+    	displayPane.setPreferredSize(new Dimension(500, 145));
+    	serverResponse.setEditable(false);
+    	clearDisplay.setPreferredSize(new Dimension(500, 30));
     	
     	loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Login Button Pressed");
-            	loginError.setText("Login Button Pressed");
+            	login(userIdField.getText());
             }
         });
     	
@@ -169,11 +184,62 @@ public class Client {
             }
         });
     	
+    	clearDisplay.addActionListener(actionEvent -> serverResponse.setText(""));
+    	
     	frame.add(loginScreen, BorderLayout.NORTH);
     	frame.add(mainScreen, BorderLayout.CENTER);
     	frame.add(serverScreen, BorderLayout.SOUTH);
     	frame.setLayout(new GridLayout(3,1));
     	frame.setVisible(true);
+    	
+    	mainScreen.setVisible(false);
     }
     
+    private void displayResponse(String response){
+        serverResponse.append(new Date() + "\n" + response + ", From: " + socket.getInetAddress() + "\n");
+    }
+    
+    private void login(String uID) {
+    	String response = "";
+    	
+    	if (uID.equals("")) {
+    		loginError.setText("Please Enter a UID!");
+    	} else {
+    		Boolean isValid = connectToServer();
+    		
+    		if(isValid) {
+    			try {
+    				toServer.writeUTF("login," + uID);
+                    toServer.flush();
+                    response = fromServer.readUTF();
+                    System.out.println(response);
+                    
+                    if (!response.equals("Invalid UID")) {
+                    	loginScreen.setVisible(false);
+                    	mainScreen.setVisible(true);
+                    	displayResponse("Welcome" + response);
+                    } else {
+                    	loginError.setText(response);
+                    	displayResponse("Invalid UID try again");
+                    }
+    			} catch (Exception e) {
+    				System.err.println(e);
+    			}
+    		}
+    	}
+    }
+    
+    Boolean connectToServer() {
+    	try {
+    		socket = new Socket("localhost", 8000);
+            fromServer = new DataInputStream(socket.getInputStream());
+            toServer = new DataOutputStream(socket.getOutputStream());
+            return true;
+    	} catch (Exception e) {
+    		System.out.println(e);
+    		serverResponse.append("Error Connecting to Server\n");
+            loginError.setText("Error Connecting to Server");
+            return false;
+    	}
+    }
 }

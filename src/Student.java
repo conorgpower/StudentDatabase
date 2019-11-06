@@ -14,30 +14,30 @@ public class Student {
 	}
 	
 	// Getters
-	public String getsID() {
+	public String getSID() {
 		return sID;
 	}
 	public String getStudID() {
 		return studID;
 	}
-	public String getfName() {
+	public String getFName() {
 		return fName;
 	}
-	public String getsName() {
+	public String getSName() {
 		return sName;
 	}
 	
 	// Setters
-	public void setsID(String sID) {
+	public void setSID(String sID) {
 		this.sID = sID;
 	}
 	public void setStudID(String studID) {
 		this.studID = studID;
 	}
-	public void setfName(String fName) {
+	public void setFName(String fName) {
 		this.fName = fName;
 	}
-	public void setsName(String sName) {
+	public void setSName(String sName) {
 		this.sName = sName;
 	}	
 }
