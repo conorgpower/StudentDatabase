@@ -22,6 +22,7 @@ public class Server {
     
     /** Server logic and UI **/
     private void runServer() {
+    	/** Setup UI for server **/
     	JFrame frame = new JFrame("Student Database Server");
     	frame.setLayout(new FlowLayout());
     	frame.add(displayPane);
@@ -40,13 +41,17 @@ public class Server {
     	
     	stopServer.addActionListener(actionEvent -> System.exit(1));
     	
+    	/** Server logic **/
     	try {
+    		/** Create server socket **/
             ServerSocket serverSocket = new ServerSocket(8000);
             display.append("Server started at" + new Date() + "\n");
 
+            /** Infinite loop listening for requests **/
             while (true) {
 
-                /** Listen for clients trying to connect **/
+                /** Listen for clients trying to connect
+                 *  Assign newSocket to the request **/
                 Socket newSocket = serverSocket.accept();
 
                 /** On request create a thread to handle the client **/

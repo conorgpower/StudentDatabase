@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.JTextField;
-
-
 public class JDBC {
 	
 	/** ArrayList for storing all students **/
@@ -153,7 +150,7 @@ public class JDBC {
 	}
 	
 	/** Search for student by surname **/
-	public Student searchStudent(String surnameSearch) {
+	public List<Student> searchStudent(String surnameSearch) {
 		try {
 			Statement s = this.getConnection().createStatement();
 			s.executeQuery("SELECT * FROM students WHERE SNAME = '" + surnameSearch + "'");
@@ -170,7 +167,7 @@ public class JDBC {
 			getResultSet().close();
 			setCount(0);
 			s.close();
-			return studentList.get(getCount());
+			return studentList;
 		} catch (SQLException e) {
 			System.err.println ("Error message: "+ e.getMessage());
 			System.err.println ("Error number: " + e.getErrorCode());

@@ -1,11 +1,12 @@
 public class Student {
 	
+	/** Student fields **/
 	private String sID;
 	private String studID;
 	private String fName;
 	private String sName;
 	
-	// Default constructor
+	/** Default constructor **/
 	public Student(String sID, String studID, String fName, String sName) {
 		this.sID = sID;
 		this.studID = studID;
@@ -13,7 +14,7 @@ public class Student {
 		this.sName = sName;
 	}
 	
-	// Getters
+	/** Getters **/
 	public String getSID() {
 		return sID;
 	}
@@ -27,7 +28,7 @@ public class Student {
 		return sName;
 	}
 	
-	// Setters
+	/** Setters **/
 	public void setSID(String sID) {
 		this.sID = sID;
 	}

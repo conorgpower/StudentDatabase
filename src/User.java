@@ -1,6 +1,7 @@
 
 public class User {
 	
+	/** User fields **/
 	private int uID;
 	private String uName;
 	

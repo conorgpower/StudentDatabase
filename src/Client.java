@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,7 +52,6 @@ public class Client {
     private static JButton clearDisplay = new JButton("Clear");
 	private static JScrollPane displayPane = new JScrollPane(serverResponse, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
     
     /** Database connection fields **/
     private Socket socket;
@@ -121,10 +121,9 @@ public class Client {
         sNameLabel.setPreferredSize(new Dimension(90, 20));
         sName.setPreferredSize(new Dimension(120, 20));
         
-        controlScreen.add(next);
         controlScreen.add(previous);
+        controlScreen.add(next);
         controlScreen.add(searchField);
-       
         controlScreen.add(searchField);
         controlScreen.add(searchButton);
         controlScreen.add(searchError);
@@ -146,6 +145,7 @@ public class Client {
     	serverResponse.setEditable(false);
     	clearDisplay.setPreferredSize(new Dimension(500, 30));
     	
+    	/** Add button action listeners **/
     	loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -170,22 +170,22 @@ public class Client {
     	searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Search Button Pressed");
-            	searchError.setText("Search Button Pressed");
+            	searchStudent(searchField.getText());
             }
         });
     	
     	clearStudent.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Clear Button Pressed");
+            	getStudentData();
+                searchField.setText("");
             }
         });
     	
     	logout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-            	System.out.println("Logout Button Pressed");
+            	logout();
             }
         });
     	
@@ -200,10 +200,12 @@ public class Client {
     	mainScreen.setVisible(false);
     }
     
+    /** Method to write response to display **/
     private void displayResponse(String response){
-        serverResponse.append(new Date() + "\n" + response + ", From: " + socket.getInetAddress() + "\n");
+        serverResponse.append(new Date() + "\n" + response + ", From: " + socket.getInetAddress() + "\n\n");
     }
     
+    /** Send login request to server **/
     private void login(String uID) {
     	String response = "";
     	
@@ -222,7 +224,7 @@ public class Client {
                     	this.getStudentData();
                     	loginScreen.setVisible(false);
                     	mainScreen.setVisible(true);
-                    	displayResponse("Welcome " + response);
+                    	displayResponse("Welcome " + response + "\nStudents fetched from database");
                     } else {
                     	loginError.setText(response);
                     	displayResponse("Invalid UID try again");
@@ -230,8 +232,32 @@ public class Client {
     			} catch (Exception e) {
     				System.err.println(e);
     			}
+    		} else {
+            	loginError.setText(response);
+            	displayResponse("Invalid UID try again");
     		}
     	}
+    }
+    
+    /** Logout from current thread **/
+    private void logout() {
+        try{
+            socket.close();
+            userIdField.setText("");
+            sID.setText("");
+            studID.setText("");
+            fName.setText("");
+            sName.setText("");
+            serverResponse.setText("");
+            searchError.setText("");
+            loginError.setText("");
+            mainScreen.setVisible(false);
+            loginScreen.setVisible(true);
+        } catch (java.net.SocketException e){
+            displayResponse("Connection to Database Lost");
+        } catch (IOException e){
+            System.out.println(e);
+        }
     }
     
     Boolean connectToServer() {
@@ -248,6 +274,7 @@ public class Client {
     	}
     }
     
+    /** Send request to server for all student data **/
     private void getStudentData() {
         try {
             toServer.writeUTF("getAllStudents");
@@ -255,21 +282,51 @@ public class Client {
             String response = fromServer.readUTF();
             String[] studentData = response.split(",");
 
-            if(studentData[0].equals("students")){
+            if(!response.equals("Invalid Surname")){
                 displayResponse("Fetching Students from Database");
                 studentList = decodeUserData(studentData);
                 getDisplayStudent("init");
             } else{
-                displayResponse("Error Getting all Student Data");
+            	searchError.setText("Invalid search, please try again!");
+                displayResponse(response);
             }
         } catch (java.net.SocketException e){
             displayResponse("Connection to Database Lost");
         }catch (Exception e){
-            System.out.println(e);
             displayResponse("Error Getting Student Data");
         }
     }
     
+    /** Send search request to server **/
+    private void searchStudent(String sName) {
+    	try {
+    		if (sName.contentEquals("")) {
+        		searchError.setText("Please Enter a UID!");
+    		} else {
+    			toServer.writeUTF("search," + sName);
+                toServer.flush();
+                String response = fromServer.readUTF();
+                String[] studentData = response.split(",");
+
+                if(studentData[0].equals("students")){
+                    displayResponse("Searching for surname: " + sName);
+                	studentList = decodeUserData(studentData);
+                    getDisplayStudent("init");
+                    displayResponse("User found and displayed");
+                    searchError.setText("");
+                } else{
+                    displayResponse("Error Searching for Student Data");
+                }
+    		}
+        } catch (java.net.SocketException e){
+            displayResponse("Connection to Database Lost");
+        }catch (Exception e){
+            displayResponse("No Student with surname: " + sName + "\nReturning to start of database");
+            getStudentData();
+        }
+    }
+    
+    /** Controller for deciding which students data to display **/
     private void getDisplayStudent(String option) {
         if(option.equals("init")){
             displayIndex = 0;
@@ -299,7 +356,7 @@ public class Client {
         sName.setText(student.getSName());
     }
     
-    
+    /** Turn student string from server into student list **/
     private ArrayList<Student> decodeUserData(String[] students){
 
         ArrayList<Student> studentList = new ArrayList<Student>();
@@ -312,6 +369,6 @@ public class Client {
             Student student = new Student(sid, stud_id, fname, sname);
             studentList.add(student);
         }
-        return studentList;
+       return studentList;
     }
 }
