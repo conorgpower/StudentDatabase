@@ -1,3 +1,19 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * Client Controller Class:
+ * The client controller class is created whenever the server socket accepts a request.
+ * The server passes in the new socket and its display as arguments for the default
+ * constructor. A thread is created to handle each client. The clients passes a string
+ * which is comma separated to the controller. This string is split by the commas into 
+ * an array which is interpreted into a request and sent to the database. The database
+ * response is encoded and sent back to the client.
+ */
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

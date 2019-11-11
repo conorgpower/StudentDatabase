@@ -1,3 +1,15 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * Student Class:
+ * The student object is used by the database, client and client controller
+ * whenever students from database interactions are being stored or accessed.
+ */
+
 public class Student {
 	
 	/** Student fields **/

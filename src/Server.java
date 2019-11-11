@@ -1,3 +1,17 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * Server Class:
+ * One instance of the server class is created to handle all of the connection requests
+ * through its server socket. The server listens for any connection requests to this 
+ * socket constantly. When a request is accepted the server creates a new client 
+ * controller to handle the new client.
+ */
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.net.ServerSocket;

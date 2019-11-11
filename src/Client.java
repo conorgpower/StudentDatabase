@@ -1,3 +1,24 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * Client Class:
+ * The client class creates a Java swing GUI. The GUI is divided into panels.
+ * Each panel represents a screen (login, main, server response). The panel's
+ * visibility is changed based on the applications state(signed in or signed
+ * out).
+ * 
+ * The buttons have an action listener associated with each of them. This points 
+ * to methods which write a request to the server (ClientHandler.java). Upon
+ * receiving a request back from the server the response Student(s) are decoded
+ * and displayed. Some methods do not request from server and just perform local
+ * operations (clear and logout).
+ * 
+ */
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;

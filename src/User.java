@@ -1,3 +1,14 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * User Class:
+ * The user object is used by the database interactions to verify
+ * login uID's and to return the user name for display.
+ */
 
 public class User {
 	

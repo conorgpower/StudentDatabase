@@ -1,3 +1,17 @@
+/**
+ * @author 			Conor Power
+ * Student Number: 	20075871
+ * Subject: 		Distributed Systems
+ * Course:			Applied Computing
+ * Date:			07/11/19
+ * 
+ * JDBC Class:
+ * The JDBC class is called upon by the client controller to interact with the
+ * MySQL database. The JDBC class first tries to establish a connection. If the 
+ * connection is successful the database contacts the database and returns
+ * the results. 
+ */
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
